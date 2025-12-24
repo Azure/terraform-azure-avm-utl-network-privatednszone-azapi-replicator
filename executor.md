@@ -229,6 +229,24 @@ linux_configuration_admin_password_version = { value = var.os_profile_linux_conf
 
 **Mode 1 - Direct Value Tracking (schema `ForceNew: true`):**
 Wrap in object to keep key stable. Track actual field value changes.
+
+**🚨 CRITICAL - Track FULL Value, Not Presence:**
+- ✅ **CORRECT:** `field = { value = var.field }` - Tracks the ENTIRE value (primitives, objects, lists)
+- ❌ **WRONG:** `field = { value = var.field != null ? true : null }` - Only tracks presence, misses internal changes
+- ❌ **WRONG:** `field = { value = var.field != null ? var.field : null }` - Redundant, just use `var.field`
+
+**Why full value tracking matters:**
+```hcl
+# Example: soa_record block with ForceNew: true
+soa_record = { value = var.soa_record }  # ✅ CORRECT
+# Detects: null → {...}, {...} → null, AND {email="old"} → {email="new"}
+
+soa_record = { value = var.soa_record != null ? true : null }  # ❌ WRONG
+# Only detects: null → true, true → null
+# MISSES: {email="old"} → {email="new"} (stays true → true)
+```
+
+**Implementation:**
 ```hcl
 field = { value = var.field }  # Key always present, value changes trigger replacement
 # OR if field is Sensitive:
