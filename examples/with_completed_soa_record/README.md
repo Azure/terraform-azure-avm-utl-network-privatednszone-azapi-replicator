@@ -4,96 +4,6 @@
 
 This example demonstrates how to migrate an **existing** `azurerm_private_dns_zone` resource to `azapi_resource` when the zone has a configured `soa_record` nested block.
 
-## When to Use This Pattern
-
-Use this pattern when you have:
-- ✅ An **existing** `azurerm_private_dns_zone` resource already deployed in Azure
-- ✅ The zone includes a `soa_record` nested block configuration
-- ✅ You want to migrate to AzAPI without recreating the zone
-
-## Why `azapi_update_resource` is Required for SOA Record
-
-**The Problem:**
-- In AzureRM, the `soa_record` is a **nested block**, not a separate resource
-- When Azure creates the zone, it creates a **separate SOA record object** at `/SOA/@`
-- After using the `moved` block to migrate the zone, the SOA record:
-  - ❌ Has **no prior Terraform state** (nested blocks don't create separate state entries)
-  - ✅ **Already exists in Azure** as a physical resource
-
-**The Solution:**
-```hcl
-resource "azapi_update_resource" "post_creation0" {
-  resource_id = "${azapi_resource.this.id}/SOA/@"
-  type        = module.replicator.post_creation0.azapi_header.type
-  body        = module.replicator.post_creation0.body
-  locks       = module.replicator.post_creation0.locks
-
-  depends_on = [azapi_resource.this]
-
-  lifecycle {
-    ignore_changes = [body]
-  }
-}
-```
-
-- Use `azapi_update_resource` (not `azapi_resource`) because the SOA record already exists
-- No `moved` block is possible for the SOA record (it was never a separate resource in state)
-- The `ignore_changes = [body]` prevents drift detection on Azure-managed fields (like serial number)
-
-## Step-by-Step Migration Guide
-
-### Step 1: Deploy Original AzureRM Resource
-
-1. Rename the configuration files to use AzureRM:
-   ```bash
-   mv azurerm.tf.bak azurerm.tf
-   mv azapi.tf azapi.tf.bak
-   ```
-
-2. Initialize and apply:
-   ```bash
-   terraform init
-   terraform apply
-   ```
-
-This creates the Private DNS Zone with the SOA record using the `azurerm_private_dns_zone` resource.
-
-### Step 2: Migrate to AzAPI
-
-1. Rename the configuration files to use AzAPI:
-   ```bash
-   mv azapi.tf.bak azapi.tf
-   mv azurerm.tf azurerm.tf.bak
-   ```
-
-2. Initialize and apply again:
-   ```bash
-   terraform init
-   terraform apply
-   ```
-
-**What happens during this apply:**
-- ✅ The `moved` block migrates the DNS Zone state from `azurerm_private_dns_zone.original` to `azapi_resource.this`
-- ✅ The `azapi_update_resource` updates the existing SOA record in place
-- ❌ **No resources are destroyed and recreated** - this is a safe, in-place migration
-
-### Expected Terraform Plan Output
-
-You should see something like:
-```
-# azurerm_private_dns_zone.original has moved to azapi_resource.this
-  ~ resource "azapi_resource" "this" {
-      # (no changes, just state migration)
-    }
-
-# azapi_update_resource.post_creation0 will be created
-  + resource "azapi_update_resource" "post_creation0" {
-      + resource_id = "..."
-      + type        = "Microsoft.Network/privateDnsZones/SOA@2024-06-01"
-      # ...
-    }
-```
-
 ```hcl
 terraform {
   required_providers {
@@ -154,7 +64,8 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
-- [azurerm_private_dns_zone.original](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_dns_zone) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_update_resource.post_creation0](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/update_resource) (resource)
 - [azurerm_resource_group.test](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [random_integer.number](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
 
@@ -183,7 +94,13 @@ No outputs.
 
 ## Modules
 
-No modules.
+The following Modules are called:
+
+### <a name="module_replicator"></a> [replicator](#module\_replicator)
+
+Source: ../..
+
+Version:
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection

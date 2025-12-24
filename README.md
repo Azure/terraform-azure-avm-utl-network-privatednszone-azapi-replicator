@@ -144,11 +144,11 @@ Description: n/a
 
 Description: n/a
 
-### <a name="output_post_creation0"></a> [post\_creation0](#output\_post\_creation0)
+### <a name="output_post_update0"></a> [post\_update0](#output\_post\_update0)
 
 Description: Post-creation operation output for SOA record
 
-### <a name="output_post_creation0_sensitive_body"></a> [post\_creation0\_sensitive\_body](#output\_post\_creation0\_sensitive\_body)
+### <a name="output_post_update0_sensitive_body"></a> [post\_update0\_sensitive\_body](#output\_post\_update0\_sensitive\_body)
 
 Description: n/a
 
