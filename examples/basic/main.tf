@@ -44,10 +44,9 @@ resource "azurerm_resource_group" "test" {
 module "replicator" {
   source = "../.."
 
-  name                = "acctestzone${random_integer.number.result}.com"
-  resource_group_id   = azurerm_resource_group.test.id
-  resource_group_name = azurerm_resource_group.test.name
-  enable_telemetry    = var.enable_telemetry
+  name              = "acctestzone${random_integer.number.result}.com"
+  resource_group_id = azurerm_resource_group.test.id
+  enable_telemetry  = var.enable_telemetry
 }
 
 resource "azapi_resource" "this" {

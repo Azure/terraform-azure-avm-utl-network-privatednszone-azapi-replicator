@@ -1,9 +1,8 @@
 module "replicator" {
   source = "../.."
 
-  name                = "acctestzone${random_integer.number.result}.com"
-  resource_group_id   = azurerm_resource_group.test.id
-  resource_group_name = azurerm_resource_group.test.name
+  name              = "acctestzone${random_integer.number.result}.com"
+  resource_group_id = azurerm_resource_group.test.id
   soa_record = {
     email        = "testemail.com"
     expire_time  = 2419200
