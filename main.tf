@@ -8,17 +8,22 @@ locals {
     ignore_null_property = true
     retry                = null
   }
-  body = {
-    properties = {}
-  }
+  body  = { properties = {} }
   locks = []
-  post_creation0 = var.soa_record != null ? {
+  # Post-creation operation for SOA record (separate API call after zone creation)
+  post_update0 = var.soa_record != null ? {
     azapi_header = {
-      type = "Microsoft.Network/privateDnsZones/SOA@2024-06-01"
+      type                 = "Microsoft.Network/privateDnsZones/SOA@2024-06-01"
+      name                 = "@"
+      parent_id            = null # Will be set by root module to azapi_resource.this.id
+      tags                 = null
+      ignore_null_property = true
+      retry                = null
     }
     body = {
       properties = {
-        ttl = var.soa_record.ttl
+        ttl      = var.soa_record.ttl
+        metadata = var.soa_record.tags
         soaRecord = {
           email       = var.soa_record.email
           expireTime  = var.soa_record.expire_time
@@ -26,20 +31,16 @@ locals {
           refreshTime = var.soa_record.refresh_time
           retryTime   = var.soa_record.retry_time
         }
-        metadata = var.soa_record.tags
       }
     }
     locks = local.locks
   } : null
-  post_creation0_sensitive_body = var.soa_record != null ? {
-    properties = {}
-  } : null
+  post_update0_sensitive_body = null
   replace_triggers_external_values = {
-    name       = { value = var.name }
-    soa_record = { value = var.soa_record != null ? true : null }
+    soa_record = { value = var.soa_record }
   }
-  sensitive_body = {
-    properties = {}
+  sensitive_body = { properties = {} }
+  sensitive_body_version = {
+    # All possible sensitive field paths with try(tostring(...), "null")
   }
-  sensitive_body_version = {}
 }

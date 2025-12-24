@@ -85,14 +85,14 @@ resource "azapi_resource" "this" {
 }
 
 resource "azapi_resource" "post_creation0" {
-  count = module.replicator.post_creation0 != null ? 1 : 0
+  count = module.replicator.post_update0 != null ? 1 : 0
 
-  name           = module.replicator.post_creation0.azapi_header.name
+  name           = module.replicator.post_update0.azapi_header.name
   parent_id      = azapi_resource.this.id
-  type           = module.replicator.post_creation0.azapi_header.type
-  body           = module.replicator.post_creation0.body
-  locks          = module.replicator.post_creation0.locks
-  sensitive_body = module.replicator.post_creation0_sensitive_body
+  type           = module.replicator.post_update0.azapi_header.type
+  body           = module.replicator.post_update0.body
+  locks          = module.replicator.post_update0.locks
+  sensitive_body = module.replicator.post_update0_sensitive_body
 
   dynamic "timeouts" {
     for_each = module.replicator.timeouts != null ? [module.replicator.timeouts] : []

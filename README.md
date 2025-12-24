@@ -146,7 +146,7 @@ Description: n/a
 
 ### <a name="output_post_creation0"></a> [post\_creation0](#output\_post\_creation0)
 
-Description: n/a
+Description: Post-creation operation output for SOA record
 
 ### <a name="output_post_creation0_sensitive_body"></a> [post\_creation0\_sensitive\_body](#output\_post\_creation0\_sensitive\_body)
 
