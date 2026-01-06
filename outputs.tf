@@ -1,6 +1,5 @@
 output "azapi_header" {
-  depends_on = []
-  value      = local.azapi_header
+  value = local.azapi_header
 }
 
 output "body" {
@@ -11,14 +10,14 @@ output "locks" {
   value = local.locks
 }
 
-output "post_creation0" {
-  value = local.post_creation0
+# Post-creation operation output for SOA record
+output "post_update0" {
+  value = local.post_update0
 }
 
-output "post_creation0_sensitive_body" {
-  ephemeral = true
+output "post_update0_sensitive_body" {
   sensitive = true
-  value     = local.post_creation0_sensitive_body
+  value     = local.post_update0_sensitive_body
 }
 
 output "replace_triggers_external_values" {
