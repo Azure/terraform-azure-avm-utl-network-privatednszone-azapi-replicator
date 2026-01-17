@@ -6,6 +6,8 @@ This deploys the module in its simplest form.
 
 ```hcl
 terraform {
+  required_version = ">= 1.9, < 2.0"
+
   required_providers {
     azapi = {
       source  = "Azure/azapi"
@@ -51,10 +53,9 @@ resource "azurerm_resource_group" "test" {
 module "replicator" {
   source = "../.."
 
-  name                = "acctestzone${random_integer.number.result}.com"
-  resource_group_id   = azurerm_resource_group.test.id
-  resource_group_name = azurerm_resource_group.test.name
-  enable_telemetry    = var.enable_telemetry
+  name              = "acctestzone${random_integer.number.result}.com"
+  resource_group_id = azurerm_resource_group.test.id
+  enable_telemetry  = var.enable_telemetry
 }
 
 resource "azapi_resource" "this" {
@@ -92,14 +93,14 @@ resource "azapi_resource" "this" {
 }
 
 resource "azapi_resource" "post_creation0" {
-  count = module.replicator.post_creation0 != null ? 1 : 0
+  count = module.replicator.post_update0 != null ? 1 : 0
 
-  name           = module.replicator.post_creation0.azapi_header.name
+  name           = module.replicator.post_update0.azapi_header.name
   parent_id      = azapi_resource.this.id
-  type           = module.replicator.post_creation0.azapi_header.type
-  body           = module.replicator.post_creation0.body
-  locks          = module.replicator.post_creation0.locks
-  sensitive_body = module.replicator.post_creation0_sensitive_body
+  type           = module.replicator.post_update0.azapi_header.type
+  body           = module.replicator.post_update0.body
+  locks          = module.replicator.post_update0.locks
+  sensitive_body = module.replicator.post_update0_sensitive_body
 
   dynamic "timeouts" {
     for_each = module.replicator.timeouts != null ? [module.replicator.timeouts] : []
@@ -124,6 +125,8 @@ resource "azapi_resource" "post_creation0" {
 ## Requirements
 
 The following requirements are needed by this module:
+
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.0)
 
